@@ -61,7 +61,7 @@ def CalculateClues(binary):
                 ri = True
                 rconsN += 1
 
-        rowClues.append(rcons)
+        rowClues.append(' '.join(str(x) for x in rcons))
 
     # Col Clues
     for j in range(len(binary[0])):
@@ -83,6 +83,7 @@ def CalculateClues(binary):
             elif r == '1':
                 cconsN += 1
                 ci = True
-        colClues.append(ccons)
+
+        colClues.append('\n'.join(str(x) for x in ccons))
 
     return {'cols':colClues,'rows':rowClues}
