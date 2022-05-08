@@ -5,24 +5,31 @@ def rgb2hex(r, g, b):
 
 def ConvertImageToPixels(path,pixelsize,threshold):
     input_image = Image.open(path)
-    new_image = Image.new("RGBA", input_image.size, "WHITE")
-    new_image.paste(input_image, (0, 0), input_image) 
-    new_image.convert('RGB')
-    pixel_map = new_image.load()
+    img = input_image
+    if input_image.mode == 'RGBA':
+        new_image = Image.new(input_image.mode, input_image.size, "WHITE")
+        new_image.paste(input_image, (0, 0), input_image)
+        new_image.convert('RGB')
+        img = new_image
+    pixel_map = img.load()
     pixels = {
         'color':[],
         'gray':[],
         'binary':[]
     }
 
-    width, height = new_image.size
+    width, height = img.size
 
     for i in range(int(height/pixelsize)+1):
         pixels['color'].append([])
         pixels['gray'].append([])
         pixels['binary'].append([])
         for j in range(int(width/pixelsize)+1):
-            r, g, b, p = new_image.getpixel((j*pixelsize, i*pixelsize))
+            if img.mode == 'RGBA':
+                r, g, b, p = img.getpixel((j*pixelsize, i*pixelsize))
+            else:
+                r, g, b = img.getpixel((j*pixelsize, i*pixelsize))
+
             grayscale = (0.299*r + 0.587*g + 0.114*b)
 
             pixels['color'][i].append('%s' % (rgb2hex(r, g, b)))
@@ -35,9 +42,13 @@ def ConvertImageToPixels(path,pixelsize,threshold):
 
 def PixelsToText(pixels):
     text_output = ''
-    for x in pixels['binary']:
+    for x in pixels:
         text_output+='\n'
         for y in x:
+            if y == '0':
+                y = ' '
+            else:
+                y = 'x'
             text_output+=y
 
     return text_output
