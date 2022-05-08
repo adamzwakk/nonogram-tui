@@ -46,16 +46,43 @@ def CalculateClues(binary):
     rowClues = []
     colClues = []
 
-    for c in binary:
-        cons = []
-        consN = 0
-        for idx, r in enumerate(c):
-            if r == '0' and c[idx-1] == '1' and consN > 0:
-                cons.append(consN)
-                consN = 0
+    # Row Clues
+    for i,c in enumerate(binary):
+        rcons = []
+        rconsN = 0
+        ri = False
+
+        for idxr, r in enumerate(c):
+            if ri and (idxr == len(c)-1) or (r == '0' and rconsN > 0):
+                rcons.append(rconsN)
+                rconsN = 0
+                ri = False
             elif r == '1':
-                consN += 1
+                ri = True
+                rconsN += 1
 
-        rowClues.append(cons)
+        rowClues.append(rcons)
 
-    print(rowClues)
+    # Col Clues
+    for j in range(len(binary[0])):
+        ccons = []
+        cconsN = 0
+        ci = False
+
+        for i in range(len(binary)):
+            r = binary[i][j]
+
+            if r == '1' and i == len(binary)-1:
+                cconsN += 1
+                ccons.append(cconsN)
+                ci = False
+            elif ci and r == '0' and cconsN > 0:
+                ccons.append(cconsN)
+                cconsN = 0
+                ci = False
+            elif r == '1':
+                cconsN += 1
+                ci = True
+        colClues.append(ccons)
+
+    return {'cols':colClues,'rows':rowClues}
