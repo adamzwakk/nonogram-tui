@@ -8,7 +8,28 @@ from rich import box
 
 from textual.app import App
 from textual.widget import Widget
-from textual.widgets import Placeholder
+from textual.reactive import Reactive
+
+class GridItem(Widget):
+    mouse_over = Reactive(False)
+
+    def __init__(self, val: bool) -> None:
+        self.val = val
+        self.t = Text()
+
+    def render(self) -> Text:
+        #default to blank
+        return self.t
+
+    def on_enter(self) -> None:
+        self.mouse_over = True
+
+    def on_leave(self) -> None:
+        self.mouse_over = False
+
+    def on_click(self) -> None:
+        self.t.text('1')
+        self.render()
 
 class Puzzle(Widget):
     imageMatrix = ConvertImageToPixels('./test_images/Boo.jpg',29,200)
@@ -22,16 +43,21 @@ class Puzzle(Widget):
     clues['cols'].insert(0,'')
     table.add_row(*clues['cols'])
 
+    # Add rows to table
+    for i,col in enumerate(display):
+        items = []
+        for j,r in enumerate(col):
+            display[i][j] = GridItem(val=r)
+
     # Insert clues before each row
     for i,r in enumerate(display):
         display[i].insert(0, clues['rows'][i])
 
-    # Add rows to table
     for col in display:
-       table.add_row(*col)
+        table.add_row(*col)
 
     def render(self) -> Panel:
-        return Panel(Align(self.table,vertical="middle",align="center"),title="Puzzle")
+        return Panel(Align.center(self.table,vertical="middle"),title="Puzzle")
 
     def getCheat(self):
         return self.cheat
@@ -65,7 +91,5 @@ class NonoApp(App):
             puzzle=puz,
             sidebar=sidebar
         )
-        #await self.view.dock(puz, edge="top")
-        #await self.view.dock(sidebar, edge="right")
 
 NonoApp.run(log="textual.log")
